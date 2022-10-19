@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/MicahParks/keyfunc"
 	"github.com/golang-jwt/jwt/v4"
@@ -11,7 +12,7 @@ import (
 
 const (
 	GITHUB_JWKS             = "https://token.actions.githubusercontent.com/.well-known/jwks"
-	LEGIT_PROVENANCE_ACTION = "legit-labs/legit-provenance-action"
+	LEGIT_PROVENANCE_ACTION = "legit-labs/legit-provenance-action/.github/workflows/generate_provenance.yml@"
 )
 
 type JwtVerifier interface {
@@ -86,6 +87,10 @@ func (v *jwtVerifier) parseToken(jwtB64 string) (*jwt.Token, error) {
 	return token, nil
 }
 
+func (v *jwtVerifier) isLegitProvenanceGenerator(jobWFRef string) bool {
+	return strings.HasPrefix(strings.ToLower(jobWFRef), v.workflowRef)
+}
+
 func (v *jwtVerifier) verifyJobWorkflowRef(claims jwt.MapClaims) error {
 	_jobWFRef, exist := claims["job_workflow_ref"]
 	if !exist {
@@ -97,8 +102,8 @@ func (v *jwtVerifier) verifyJobWorkflowRef(claims jwt.MapClaims) error {
 		return fmt.Errorf("failed to parse job workflow ref")
 	}
 
-	if jobWFRef != v.workflowRef {
-		return fmt.Errorf("invalid job workflow ref: %v != %v", jobWFRef, v.workflowRef)
+	if !v.isLegitProvenanceGenerator(jobWFRef) {
+		return fmt.Errorf("invalid job workflow ref: %v", jobWFRef)
 	}
 
 	return nil
