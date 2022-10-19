@@ -12,7 +12,7 @@ import (
 
 const (
 	GITHUB_JWKS             = "https://token.actions.githubusercontent.com/.well-known/jwks"
-	LEGIT_PROVENANCE_ACTION = "legit-labs/legit-provenance-action/.github/workflows/generate_provenance.yml@"
+	LEGIT_PROVENANCE_ACTION = "legit-labs/legit-provenance-action/.github/workflows/generate_provenance.yml"
 )
 
 type JwtVerifier interface {
@@ -88,7 +88,7 @@ func (v *jwtVerifier) parseToken(jwtB64 string) (*jwt.Token, error) {
 }
 
 func (v *jwtVerifier) isLegitProvenanceGenerator(jobWFRef string) bool {
-	return strings.HasPrefix(strings.ToLower(jobWFRef), v.workflowRef)
+	return strings.HasPrefix(strings.ToLower(jobWFRef), v.workflowRef+"@")
 }
 
 func (v *jwtVerifier) verifyJobWorkflowRef(claims jwt.MapClaims) error {
