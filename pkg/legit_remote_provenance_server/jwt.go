@@ -1,4 +1,4 @@
-package main
+package legit_remote_provenance_server
 
 import (
 	"fmt"
